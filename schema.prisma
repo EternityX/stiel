@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = ""
+}
+
+generator db {
+  provider = "go run github.com/steebchen/prisma-client-go"
+}
+
+model Site {
+  id String @id @default(cuid())
+  url String @unique
+  status ScrapeStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  errors Error[]
+}
+
+model Scrape {
+  id String @id @default(cuid())
+  title String
+  description String
+  platform String
+  score Int
+  reviewsRating Int
+  link String
+  datePublished String
+  dateModified String
+  scrapeCreatedAt DateTime @default(now())
+  scrapeUpdatedAt DateTime @updatedAt
+}
+
+model Secret {
+  id String @id @default(cuid())
+  secret String @unique
+  risk String
+  siteUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Error {
+  id String @id @default(cuid())
+  siteId String
+  site Site @relation(fields: [siteId], references: [id])
+  error String
+  createdAt DateTime @default(now())
+}
+
+enum ScrapeStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  PARTIAL
+  FAILED
+}
